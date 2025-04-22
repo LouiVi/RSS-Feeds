@@ -1,0 +1,1 @@
+{"thin":"/Sys/fonts/mui/Thin.ttf","light":"/Sys/fonts/mui/Light.ttf","regular":"/Sys/fonts/mui/Regular.ttf","medium":"/Sys/fonts/mui/Medium.ttf","bold":"/Sys/fonts/mui/Bold.ttf","icon":"/Sys/fonts/mui/Icon.ttf"}

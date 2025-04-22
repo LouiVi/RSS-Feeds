@@ -1,4 +1,7 @@
-cfg.Light, cfg.MUI
+cfg.Light, cfg.MUI;
+app.LoadPlugin( "Utils" );
+utils = app.CreateUtils();
+
 var cc = new Array();
 var tt = new Array();
 var ii = new Array()
@@ -6,11 +9,24 @@ var ll = new Array();
 var  feed  = "https://www.espn.com/espn/rss/news";
 	var categories = ["Ultima Hora", "Noticias", "Negocios", "Entretenimiento", "Deportes", "English", "Gastronomía", "De Viaje", "Galerías", "Opinión", "Estilos de vida"];
 
-var feeds = ["https://www.elnuevodia.com/arc/outboundfeeds/rss/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/noticias/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/negocios/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/entretenimiento/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/deportes/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/english/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/gastronomia/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/de-viaje/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/?query=type:gallery?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/opinion/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/estilos-de-vida/?outputType=xml"];
-fed = "http://feeds.people.com/people/headlines";//http://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml";//http://rssfeeds.usatoday.com/usatoday-NewsTopStories";
+var feeds = ["https://la-guaridadelbigfoot.blogspot.com/feeds","https://www.elnuevodia.com/arc/outboundfeeds/rss/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/noticias/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/negocios/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/entretenimiento/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/deportes/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/english/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/gastronomia/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/de-viaje/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/?query=type:gallery?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/opinion/?outputType=xml","https://www.elnuevodia.com/arc/outboundfeeds/rss/category/estilos-de-vida/?outputType=xml"];
+fed = "http://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml";//https://www.pressdisplay.com/pressdisplay/services/rss.ashx?cid=34pj&type=full";//http://feeds.people.com/people/headlines";//http://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml";//http://rssfeeds.usatoday.com/usatoday-NewsTopStories";
 async function OnStart()
 {
+//a = app.GetDatabaseFolder();
+//app.SetClipboardText( a );
+//app.Exit();
+//data/user/0/com.smartphoneremote.androidscriptfree/
+//w = prompt("",utils.GetDSPath())
+//Create or open a database called "MyData".  
+//alert(app.ListFolder( utils.GetDSPath()+"/DroidScript/"+app.GetAppName()+"/", "",-1 ))
+    db = app.OpenDatabase( "/storage/emulated/0/Android/data/com.smartphoneremote.androidscriptfree/files"+"/DroidScript/"+app.GetAppName()+"/Rssx.sqlite.txt" )  
+      
+    //Create a table (if it does not exist already).  
+    db.ExecuteSql( "CREATE TABLE IF NOT EXISTS feeds " +  
+        "(title text primary key not null, description text, media text, image text, link text)" );
 
+    //Get all the table rows.      
 //app.DeleteFolder( "/storage/emulated/0/Download/rssImages/" );
 //app.MakeFolder( "/storage/emulated/0/Download/rssImages/" );
     lay = MUI.CreateLayout("Linear", "Top,HCenter,FillXY")
@@ -48,26 +64,16 @@ lay.AddChild( apb );
                 lay2.AddChild(card1)
                 card1.SetOnButtonTouch(OnBtnTouch)
                 */
+                //app.GetPermission(  )
 
             scrl.AddChild(lay2)
         lay.AddChild(scrl)
     app.AddLayout(lay)
-    await parseRSSFeedDownloadImage(feeds[1]);
+   // await parseRSSFeedDownloadImage(fed);
     //app.Wait(15, false);
-    await parseRSSFeed(feeds[1]);//"https://www.elnuevodia.com/arc/outboundfeeds/rss/category/negocios/?outputType=xml"); //https://www.elnuevodia.com/arc/outboundfeeds/rss/?outputType=xml");
+    await parseRSSFeed(feed[0]);//"https://www.elnuevodia.com/arc/outboundfeeds/rss/category/negocios/?outputType=xml"); //https://www.elnuevodia.com/arc/outboundfeeds/rss/?outputType=xml");
 //MUI.fonts["medium"] = "Misc/BebasNeue-Regular.ttf";
-    var objs = await app.GetObjects();
-
-    var lst = new Array()
-    for(var i in objs){
-        if(objs[i].GetType() == "Text") {
-        	
-        }
-        lst.push(objs[i].GetType());
-        //objs[i].SetFontFile("Misc/SixtyfourConvergence-Regular-VariableFont.ttf");
-		}
-		app.WriteFile( "dat.txt", lst.join("\r\n" ));
-		
+    
 		
 		/*
 		
@@ -130,11 +136,18 @@ function parseRSSFeed(url) {
                 var description = items[i].getElementsByTagName("description")[0].textContent;
                 var media = items[i].getElementsByTagName("media:thumbnail")[0] || items[i].getElementsByTagName("media:content")[0];
                 var imageUrl = media ? media.getAttribute("url") : "";
+                //app.DeleteFile( "/storage/emulated/0/Download/rssImages/imgEspn"+(i+1)+".jpg" );
+                   if(!app.FileExists( "/storage/emulated/0/Download/rssImages/imgEspn"+(i+1)+".jpg") ) app.DownloadFile( imageUrl, "/storage/emulated/0/Download/rssImages/imgEspn"+(i+1)+".jpg", "Download image","Download" )
                 cc.push(i);
                 tt.push(title);
                 ii.push(imageUrl);
                 //app.ShowPopup( items[i].getElementsByTagName("link")[0].textContent );
                 ll.push(items[i].getElementsByTagName("link")[0].textContent);
+                    //Add some data (with error handler).  
+                    alert("here")
+    db.ExecuteSql( "INSERT INTO feeds(title, description, media, image, link)" +   
+        " VALUES (?,?,?,?,?)", [title, description, media, "/storage/emulated/0/Download/rssImages/imgEspn"+(i+1)+".jpg", items[i].getElementsByTagName("link")[0].textContent], null, ()=>{alert("error");})  
+
                 //app.ShowPopup( imageUrl );
                 /*if(!app.FileExists( "/storage/emulated/0/Download/rssImages/imgEspn"+(i+1)+".jpg") ) {
                 setTimeout(OnStart, 15000);
@@ -161,6 +174,7 @@ function parseRSSFeed(url) {
 								card.SetOnImageTouch(OnImgTouch)
                 // Add the card to the UI
                 lay2.AddChild(card);
+                card.Animate("Rubberband");
                 /*
                 for (var h = 0; h < card.GetChildCount(); h++) {
         var child = card.GetChild(h);
@@ -174,6 +188,24 @@ function parseRSSFeed(url) {
         }
     };
     xhr.send();
+    setTimeout(()=>{conti();}, 7500);
+}
+
+function conti()
+{
+	var objs = app.GetObjects();
+
+    var lst = new Array()
+    for(var i in objs){
+        if(objs[i].GetType() == "Image") {
+        	objs[i].SetOnLoad((img)=>{objs[i].Show();objs[i].SetImage(img);app.ShowPopup(JSON.stringify(img) )});
+        }
+        //lst.push(objs[i].GetType());
+        lst.push(objs[i].data);
+        //objs[i].SetFontFile("Misc/SixtyfourConvergence-Regular-VariableFont.ttf");
+		}
+		app.WriteFile( "dat.txt", lst.join("\r\n" ));
+		
 }
 
 function CheckArrays(cardName)
